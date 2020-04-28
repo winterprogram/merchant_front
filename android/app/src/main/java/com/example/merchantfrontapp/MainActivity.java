@@ -1,11 +1,11 @@
 package com.example.merchantfrontapp;
-
+import android.location.LocationManager;
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 import io.flutter.plugin.common.MethodChannel;
-
+import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -36,7 +36,7 @@ public class MainActivity extends FlutterActivity {
     LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     boolean isGpsOn = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-
+System.out.println("getgsp"+isGpsOn );
     return isGpsOn;
 
   }

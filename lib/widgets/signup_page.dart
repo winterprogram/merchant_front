@@ -54,6 +54,7 @@ class _SignUpState extends State<SignUp> {
     super.initState();
     requestLocationPermission();
     _gpsService();
+    _getGPS();
     _getLocation().then((position) {
       userLocation = position;
     });
@@ -518,6 +519,7 @@ class _SignUpState extends State<SignUp> {
   }
 
   Future<Null> _getGPS() async {
+    print('I am here');
     String _message;
     try {
       final String result = await platformMethodChannel.invokeMethod('getGPS');
