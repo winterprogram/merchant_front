@@ -20,6 +20,8 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  static const platformMethodChannel = const MethodChannel('merchant/getGPS');
+  String nativeMessage = '';
   final PermissionHandler permissionHandler = PermissionHandler();
   Map<PermissionGroup, PermissionStatus> permissions;
   bool _autoValidate = false;
@@ -513,5 +515,18 @@ class _SignUpState extends State<SignUp> {
       currentLocation = null;
     }
     return currentLocation;
+  }
+
+  Future<Null> _getGPS() async {
+    String _message;
+    try {
+      final String result = await platformMethodChannel.invokeMethod('getGPS');
+      _message = result;
+    } on PlatformException catch (e) {
+      _message = "Can't do native stuff ${e.message}.";
+    }
+    setState(() {
+      nativeMessage = _message;
+    });
   }
 }
