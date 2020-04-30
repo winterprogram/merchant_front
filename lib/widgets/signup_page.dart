@@ -360,8 +360,7 @@ class _SignUpState extends State<SignUp> {
   }
 
   String validatePassword(String value) {
-    Pattern pattern =
-        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})';
+    Pattern pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})';
     RegExp regex = new RegExp(pattern);
     if (!regex.hasMatch(value) || value.length < 6)
       return 'Must contain - Alphabet (Caps/small), Number and Specialsdfs';
@@ -464,15 +463,15 @@ class _SignUpState extends State<SignUp> {
 /*Show dialog if GPS not enabled and open settings location*/
   Future _checkGps(String message) async {
     print('running gps function2');
-    if (message=='false') {
+    if (message == 'false') {
       if (Theme.of(context).platform == TargetPlatform.android) {
         showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
                 title: Text("Can't get gurrent location"),
-                content:
-                    const Text('Please make sure you enable GPS and set location mode to High accruacy and try again'),
+                content: const Text(
+                    'Please make sure you enable GPS and set location mode to High accruacy and try again'),
                 actions: <Widget>[
                   FlatButton(
                       child: Text('Ok'),
@@ -481,7 +480,8 @@ class _SignUpState extends State<SignUp> {
                             action:
                                 'android.settings.LOCATION_SOURCE_SETTINGS');
                         intent.launch();
-                        Navigator.of(context, rootNavigator: true).pop('dialog');
+                        Navigator.of(context, rootNavigator: true)
+                            .pop('dialog');
                         Navigator.pop(context);
                       })
                 ],
@@ -526,9 +526,10 @@ class _SignUpState extends State<SignUp> {
     try {
       final String result = await platformMethodChannel.invokeMethod('getGPS');
       _message = result;
-      if(_message=='false'){
+      if (_message == 'false') {
         _checkGps(_message);
-      print('this is message '+_message);}
+        print('this is message ' + _message);
+      }
     } on PlatformException catch (e) {
       _message = "Can't do native stuff ${e.message}.";
     }
