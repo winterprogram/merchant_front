@@ -383,7 +383,8 @@ class _SignUpState extends State<SignUp> {
           'zipcode': m.zipcode,
           'shopname': m.shopname,
           'category': m.category,
-          'geolocation': [m.latitude, m.longitude],
+          'latitude': m.latitude,
+          'longitude': m.longitude,
         }),
       ).timeout(const Duration(seconds: 10));
       String body = response.body;
