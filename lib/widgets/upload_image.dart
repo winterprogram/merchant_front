@@ -1,14 +1,20 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:merchantfrontapp/widgets/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
+import 'constants.dart';
 
 const Color kErrorRed = Colors.redAccent;
 const Color kDarkGray = Color(0xFFA3A3A3);
 const Color kLightGray = Color(0xFFF1F0F5);
 
+enum PhotoStatus { LOADING, ERROR, LOADED }
 enum PhotoSource { FILE, NETWORK }
 
 class ImagePickerWidget extends StatefulWidget {
@@ -19,8 +25,10 @@ class ImagePickerWidget extends StatefulWidget {
 class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   List<File> _photos = List<File>();
   List<String> _photosUrls = List<String>();
-  List<PhotoSource> _photosSources = List<PhotoSource>();
 
+  List<PhotoStatus> _photosStatus = List<PhotoStatus>();
+  List<PhotoSource> _photosSources = List<PhotoSource>();
+  List<GalleryItem> _galleryItems = List<GalleryItem>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,6 +156,26 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
 
     if (permissionStatus == PermissionStatus.granted) {
       print('Permission granted');
+      File image = await ImagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+
+      if (image != null) {
+        String fileExtension = path.extension(image.path);
+
+        _galleryItems.add(
+          GalleryItem(
+            id: Uuid().v1(),
+            resource: image.path,
+            isSvg: fileExtension.toLowerCase() == ".svg",
+          ),
+        );
+
+        setState(() {
+          _photos.add(image);
+          _photosSources.add(PhotoSource.FILE);
+        });
+      }
     }
   }
 
@@ -160,6 +188,14 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       openAppSettings,
     );
   }
+}
+
+class GalleryItem {
+  GalleryItem({this.id, this.resource, this.isSvg = false});
+
+  final String id;
+  String resource;
+  final bool isSvg;
 }
 
 class CustomDialog {
