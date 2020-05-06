@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:merchantfrontapp/widgets/common_button.dart';
 import 'package:merchantfrontapp/widgets/signup_page.dart';
 import 'package:merchantfrontapp/widgets/login_page.dart';
+import 'package:merchantfrontapp/widgets/upload_image.dart';
 
 // landing page
 class LandingPage extends StatefulWidget {
@@ -16,7 +17,7 @@ class _LandingPageState extends State<LandingPage> {
     // Navigator.pop on the Selection Screen.
     bool result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SignUp()),
+      MaterialPageRoute(builder: (context) => ImagePickerWidget()),
     );
     if (result == true) {
       showModalBottomSheet(context: context, builder: (context) => Login());

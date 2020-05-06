@@ -22,8 +22,6 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   static const platformMethodChannel = const MethodChannel('merchant/getGPS');
   String nativeMessage = '';
-  final PermissionHandler permissionHandler = PermissionHandler();
-  Map<PermissionGroup, PermissionStatus> permissions;
   bool _autoValidate = false;
   final _formKey = GlobalKey<FormState>();
   String shopName;
@@ -442,10 +440,10 @@ class _SignUpState extends State<SignUp> {
   }
 
   //Code below is for asking location
-  Future<bool> _requestPermission(PermissionGroup permission) async {
-    final PermissionHandler _permissionHandler = PermissionHandler();
-    var result = await _permissionHandler.requestPermissions([permission]);
-    if (result[permission] == PermissionStatus.granted) {
+  Future<bool> _requestPermission(Permission permission) async {
+    PermissionStatus permissionStatus = await permission.status;
+
+    if (permissionStatus == PermissionStatus.granted) {
       return true;
     }
     return false;
@@ -453,7 +451,7 @@ class _SignUpState extends State<SignUp> {
 
 /*Checking if your App has been Given Permission*/
   Future<bool> requestLocationPermission({Function onPermissionDenied}) async {
-    var granted = await _requestPermission(PermissionGroup.location);
+    var granted = await _requestPermission(Permission.location);
     if (granted != true) {
       requestLocationPermission();
     }
