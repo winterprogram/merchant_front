@@ -222,7 +222,7 @@ class _CouponGenerateState extends State<CouponGenerate> {
 
     try {
       Response response = await post(
-        kCouponGenerate,
+        kUrl + '/code',
         headers: {
           'merchantid': merchantid,
           'Content-Type': 'application/json',
@@ -306,7 +306,7 @@ class _CouponGenerateState extends State<CouponGenerate> {
     String merchantid = prefs.getString(merchantkey);
     try {
       Response response = await put(
-        kCouponEdit,
+        kUrl + '/couponedit',
         headers: {
           'merchantid': merchantid,
           'Content-Type': 'application/json',

@@ -17,7 +17,7 @@ class _LandingPageState extends State<LandingPage> {
     // Navigator.pop on the Selection Screen.
     bool result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ImagePickerWidget()),
+      MaterialPageRoute(builder: (context) => SignUp()),
     );
     if (result == true) {
       showModalBottomSheet(context: context, builder: (context) => Login());

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:merchantfrontapp/widgets/common_button.dart';
 import 'package:merchantfrontapp/widgets/constants.dart';
+import 'package:merchantfrontapp/widgets/upload_image.dart';
 import 'package:toast/toast.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
@@ -103,7 +104,7 @@ class _LoginState extends State<Login> {
   loginMerchant(BuildContext context, String mobile, String password) async {
     try {
       Response response = await post(
-        kMerchantLogin,
+        kUrl + '/merchantlogin',
         headers: <String, String>{'Content-Type': 'application/json'},
         body: jsonEncode(<String, dynamic>{
           'mobilenumber': mobile,
@@ -112,6 +113,7 @@ class _LoginState extends State<Login> {
       ).timeout(const Duration(seconds: 10));
       String body = response.body;
       String status = json.decode(body)['message'];
+      print(status);
       if (status == 'successful login') {
         Toast.show(
           "Login Successful",
@@ -121,6 +123,7 @@ class _LoginState extends State<Login> {
           textColor: Colors.black,
           backgroundColor: Colors.green[200],
         );
+        save(json.decode(body)['data']['merchantid']);
         Future.delayed(const Duration(milliseconds: 500), () {
           setState(() {
             Navigator.push(
@@ -129,6 +132,11 @@ class _LoginState extends State<Login> {
             );
           });
         });
+      } else if (status == 'images are not uploaded by this merchant') {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ImagePickerWidget(mobile, password)));
       } else {
         Toast.show(
           "Icorrect username/password",
@@ -141,7 +149,7 @@ class _LoginState extends State<Login> {
       }
 
       //call saving keys function
-      save(json.decode(body)['data']['merchantid']);
+
       print(body);
     } on TimeoutException catch (_) {
       Toast.show(

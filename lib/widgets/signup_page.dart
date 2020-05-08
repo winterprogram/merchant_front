@@ -369,7 +369,7 @@ class _SignUpState extends State<SignUp> {
   createMerchant(Merchant m) async {
     try {
       Response response = await post(
-        kMerchantSignup,
+        kUrl + '/merchantSignup',
         headers: <String, String>{'Content-Type': 'application/json'},
         body: jsonEncode(<String, dynamic>{
           'fullname': m.fullname,

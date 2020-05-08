@@ -125,7 +125,7 @@ class _ManageCouponState extends State<ManageCoupon> {
     String merchantid = prefs.getString(merchantkey);
     try {
       Response response = await get(
-        kCouponsManage,
+        kUrl + '/couponsfortrans',
         headers: <String, String>{
           'merchantid': merchantid,
           'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ class _ManageCouponState extends State<ManageCoupon> {
 
     try {
       Response response = await put(
-        kCouponDelete,
+        kUrl + '/deletecoupon',
         headers: {
           'merchantid': merchantid,
           'Content-Type': 'application/json',
