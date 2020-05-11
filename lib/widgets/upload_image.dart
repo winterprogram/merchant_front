@@ -366,7 +366,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     if (permissionStatus == PermissionStatus.granted) {
       print('Permission granted');
       File image = await ImagePicker.pickImage(
-          source: ImageSource.gallery, maxHeight: 400, maxWidth: 400);
+          source: ImageSource.gallery, imageQuality: 85);
 
       if (image != null) {
         int length;
