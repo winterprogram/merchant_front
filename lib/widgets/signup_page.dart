@@ -387,7 +387,7 @@ class _SignUpState extends State<SignUp> {
       ).timeout(const Duration(seconds: 10));
       String body = response.body;
 
-      String status = json.decode(body)['status'];
+      String status = json.decode(body)['message'];
 
       if (status == 'user registered') {
         Toast.show(
@@ -468,7 +468,7 @@ class _SignUpState extends State<SignUp> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text("Can't get gurrent location"),
+                title: Text("LoginCan't get gurrent location"),
                 content: const Text(
                     'Please make sure you enable GPS and set location mode to High accruacy and try again'),
                 actions: <Widget>[
