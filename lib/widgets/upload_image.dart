@@ -271,7 +271,9 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     _photosSources.removeAt(index);
     _galleryItems.removeAt(index);
     setState(() {
-      imag -= 1;
+      if (imag > 0) {
+        imag -= 1;
+      }
     });
     return true;
   }
