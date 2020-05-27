@@ -28,6 +28,7 @@ class ImagePickerWidget extends StatefulWidget {
 }
 
 class _ImagePickerWidgetState extends State<ImagePickerWidget> {
+  PhotoStatus p = PhotoStatus.LOADED;
   int imag = 0;
   List<File> _photos = List<File>();
   List<String> _photosUrls = List<String>();
@@ -42,11 +43,17 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Container(
-              child: (Text(
-            imag.toString() + '/5',
-            style: TextStyle(fontSize: 18),
-          ))),
+          Row(
+            children: <Widget>[
+              Container(
+                child: Text(
+                  imag.toString() + '/5',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              Padding(padding: EdgeInsets.only(left: 15), child: showProgress())
+            ],
+          ),
           Container(
             height: 100,
             child: ListView.builder(
@@ -130,6 +137,14 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     );
   }
 
+  showProgress() {
+    if (_photosStatus.contains(PhotoStatus.LOADING)) {
+      return CircularProgressIndicator();
+    } else {
+      return SizedBox();
+    }
+  }
+
   imageCheck(BuildContext context, String mobile, String password, List url,
       bool upload) async {
     try {
@@ -146,6 +161,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       print(response.body);
 
       String status = json.decode(body)['message'];
+      print((json.decode(body)['status']));
       print(status);
       if (response.statusCode == 200) {
         loginMerchant(context, mobile, password);
@@ -211,9 +227,10 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         save(json.decode(body)['data']['merchantid']);
         Future.delayed(const Duration(milliseconds: 500), () {
           setState(() {
-            Navigator.push(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => Dashboard()),
+              (Route<dynamic> route) => false,
             );
           });
         });

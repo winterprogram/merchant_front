@@ -126,17 +126,20 @@ class _LoginState extends State<Login> {
         save(json.decode(body)['data']['merchantid']);
         Future.delayed(const Duration(milliseconds: 500), () {
           setState(() {
-            Navigator.push(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => Dashboard()),
+              (Route<dynamic> route) => false,
             );
           });
         });
       } else if (status == 'images are not uploaded by this merchant') {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ImagePickerWidget(mobile, password)));
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ImagePickerWidget(mobile, password)),
+          (Route<dynamic> route) => false,
+        );
       } else {
         Toast.show(
           "Icorrect username/password",

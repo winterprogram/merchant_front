@@ -55,10 +55,10 @@ class _DashboardState extends State<Dashboard> {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 prefs.remove('merchantid');
                 Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext ctx) => LandingPage()),
-                    ModalRoute.withName('/'));
+                  context,
+                  MaterialPageRoute(builder: (context) => LandingPage()),
+                  (Route<dynamic> route) => false,
+                );
               },
             ),
           ],
