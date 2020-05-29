@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:merchantfrontapp/widgets/constants.dart';
 import 'package:merchantfrontapp/widgets/manage_coupon_page.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'dart:async';
+import 'dart:io';
+
+import 'package:toast/toast.dart';
 
 class StatusPage extends StatefulWidget {
   @override
@@ -7,6 +15,13 @@ class StatusPage extends StatefulWidget {
 }
 
 class _StatusPageState extends State<StatusPage> {
+  @override
+  void initState() {
+    super.initState();
+    print('hi');
+    showMerchantEarning();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -283,5 +298,61 @@ class _StatusPageState extends State<StatusPage> {
         ),
       ),
     );
+  }
+
+  showMerchantEarning() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var merchantid = prefs.getString('merchantid');
+    try {
+      Response response = await get(
+        kUrl + '/merchantEarning',
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'merchantid': merchantid
+        },
+      ).timeout(const Duration(seconds: 10));
+      String body = response.body;
+      String status = json.decode(body)['message'];
+      int code = json.decode(body)['status'];
+      List data = json.decode(body)['data'];
+      print(body);
+      print(code);
+      if (code == 200) {
+        double sum = 0;
+        data.forEach((element) {
+          sum += element;
+        });
+        String sums = sum.toStringAsFixed(2);
+        print(sums);
+      } else if (status == 'images are not uploaded by this merchant') {
+      } else {
+        Toast.show(
+          "Icorrect username/password",
+          context,
+          duration: 3,
+          gravity: Toast.BOTTOM,
+          textColor: Colors.black,
+          backgroundColor: Colors.red[200],
+        );
+      }
+    } on TimeoutException catch (_) {
+      Toast.show(
+        "Check your internet connection",
+        context,
+        duration: 3,
+        gravity: Toast.BOTTOM,
+        textColor: Colors.black,
+        backgroundColor: Colors.red[200],
+      );
+    } on SocketException catch (_) {
+      Toast.show(
+        "Check your internet connection",
+        context,
+        duration: 3,
+        gravity: Toast.BOTTOM,
+        textColor: Colors.black,
+        backgroundColor: Colors.red[200],
+      );
+    }
   }
 }
