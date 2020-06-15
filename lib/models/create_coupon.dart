@@ -6,6 +6,7 @@ class Coupon {
   final String flatdiscount;
   final String startdate;
   final String enddate;
+  final String shopname;
   final Function editFunction;
   final Function deleteFunction;
   Coupon({
@@ -13,63 +14,123 @@ class Coupon {
     @required this.flatdiscount,
     @required this.startdate,
     @required this.enddate,
+    this.shopname,
     this.editFunction,
     this.deleteFunction,
   });
   Widget createCoupon() {
-    return Container(
-      color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: EdgeInsets.only(top: 24),
+      child: Container(
+          padding: EdgeInsets.only(top: 24, left: 31),
+          height: 220,
+          decoration: BoxDecoration(
+              color: Color(0xff3A91EC),
+              borderRadius: BorderRadius.all(Radius.circular(12))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                'Your Active Coupon',
-                style: TextStyle(fontSize: 25),
+                'DISCOUNT',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold),
               ),
-              Text(this.discount + "% discount")
-            ],
-          ),
-          SizedBox(
-            height: 50,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(
-                this.startdate + '-' + this.enddate,
-                style: TextStyle(fontSize: 20),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text(
+                  '$discount%',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 21),
+                child: Row(
+                  children: <Widget>[
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          'EXPIRY',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 9.0),
+                          child: Text(
+                            enddate,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(left: 47),
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            'DISCOUNT UPTO',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10.0),
+                            child: Text(
+                              'Rs.$flatdiscount',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 15),
+                child: Text(
+                  'MERCHANT',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Container(
-                    child: RaisedButton(
-                      child: Text('Edit'),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      color: Colors.yellow,
-                      onPressed: editFunction,
-                    ),
+                  Text(
+                    '$shopname',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500),
                   ),
-                  Container(
-                    child: RaisedButton(
-                      child: Text('Delete'),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      color: Colors.yellow,
-                      onPressed: deleteFunction,
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                      color: Colors.red[500],
                     ),
-                  ),
+                    onPressed: deleteFunction,
+                  )
                 ],
-              ),
+              )
             ],
-          ),
-        ],
-      ),
+          )),
     );
   }
 }

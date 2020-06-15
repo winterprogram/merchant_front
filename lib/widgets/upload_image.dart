@@ -15,6 +15,7 @@ import 'package:uuid/uuid.dart';
 import 'constants.dart';
 import 'custom_dialog.dart';
 import 'dashboard.dart';
+import 'fcm_notification.dart';
 
 enum PhotoStatus { LOADING, ERROR, LOADED }
 enum PhotoSource { FILE, NETWORK }
@@ -28,6 +29,7 @@ class ImagePickerWidget extends StatefulWidget {
 }
 
 class _ImagePickerWidgetState extends State<ImagePickerWidget> {
+  FcmNotification fcm;
   PhotoStatus p = PhotoStatus.LOADED;
   int imag = 0;
   List<File> _photos = List<File>();
@@ -36,6 +38,14 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   List<PhotoStatus> _photosStatus = List<PhotoStatus>();
   List<PhotoSource> _photosSources = List<PhotoSource>();
   List<GalleryItem> _galleryItems = List<GalleryItem>();
+
+  @override
+  void initState() {
+    super.initState();
+    fcm = new FcmNotification(context: context);
+    fcm.initialize();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -224,7 +234,16 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
           textColor: Colors.black,
           backgroundColor: Colors.green[200],
         );
-        save(json.decode(body)['data']['merchantid']);
+        save(
+          address: json.decode(body)['data']['merchantData']['address'],
+          city: json.decode(body)['data']['merchantData']['city'],
+          merchantid: json.decode(body)['data']['merchantid'],
+          mailid: json.decode(body)['data']['merchantData']['email'],
+          shopname: json.decode(body)['data']['merchantData']['shopname'],
+          zipcode: json.decode(body)['data']['merchantData']['zipcode'],
+          mobile: json.decode(body)['data']['merchantData']['mobilenumber'],
+          name: json.decode(body)['data']['merchantData']['fullname'],
+        );
         Future.delayed(const Duration(milliseconds: 500), () {
           setState(() {
             Navigator.pushAndRemoveUntil(
@@ -269,13 +288,28 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     }
   }
 
-  void save(String merchantid) async {
+  void save(
+      {String merchantid,
+      String shopname,
+      String name,
+      String address,
+      String city,
+      String mobile,
+      String mailid,
+      String zipcode}) async {
     print(merchantid);
     print('hi');
     prefs = await SharedPreferences.getInstance(); //get instance of app memory
     final merchantkey = 'merchantid';
     //save keys in memory
     prefs.setString(merchantkey, merchantid);
+    prefs.setString('shopname', shopname);
+    prefs.setString('name', name);
+    prefs.setString('address', address);
+    prefs.setString('city', city);
+    prefs.setString('mobile', mobile);
+    prefs.setString('mailid', mailid);
+    prefs.setString('zipcode', zipcode);
     print(prefs.getString(merchantkey));
   }
 
@@ -555,9 +589,6 @@ class _DeleteWidgetState extends State<DeleteWidget> {
   _onDeleteWidgetClicked() async {
     print('DELETING');
     startDeleting();
-
-    bool isDeleted = await widget.onDeleteClicked();
-
     stopDeleting();
     print('DELETED');
   }

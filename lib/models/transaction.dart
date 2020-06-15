@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum TransactionType { sent, received, pending }
+enum TransactionType { success, failure }
 
 class Transaction extends StatelessWidget {
   final TransactionType transactionType;
@@ -17,17 +17,13 @@ class Transaction extends StatelessWidget {
     String transactionName;
     Color color;
     switch (transactionType) {
-      case TransactionType.sent:
-        transactionName = "Sent";
-        color = Theme.of(context).primaryColor;
-        break;
-      case TransactionType.received:
-        transactionName = "Received";
+      case TransactionType.success:
+        transactionName = "Success";
         color = Colors.green;
         break;
-      case TransactionType.pending:
-        transactionName = "Pending";
-        color = Colors.orange;
+      case TransactionType.failure:
+        transactionName = "Failure";
+        color = Colors.red;
         break;
     }
     return Container(
@@ -55,25 +51,28 @@ class Transaction extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      receptient,
+                      "Rs. $transactionAmout",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      "Rs. $transactionAmout",
+                      receptient,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
+                Center(
+                  child: Text(
+                    "$transactionName",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text(
-                      "$transactionName",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                      ),
-                    ),
+                    Text('$transactionDate'),
                   ],
                 ),
               ],

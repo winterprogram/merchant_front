@@ -1,6 +1,3 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 class Merchant {
   final String fullname;
   final String mailid;
@@ -14,16 +11,16 @@ class Merchant {
   final String latitude;
   final String longitude;
   Merchant({
-    @required this.fullname,
-    @required this.mailid,
-    @required this.mobilenumber,
-    @required this.city,
-    @required this.password,
-    @required this.address,
-    @required this.zipcode,
-    @required this.category,
-    @required this.shopname,
-    @required this.longitude,
-    @required this.latitude,
+    this.fullname,
+    this.mailid,
+    this.mobilenumber,
+    this.city,
+    this.password,
+    this.address,
+    this.zipcode,
+    this.category,
+    this.shopname,
+    this.longitude,
+    this.latitude,
   });
 }

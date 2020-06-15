@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:merchantfrontapp/widgets/Mixpanel.dart';
 import 'package:merchantfrontapp/widgets/common_button.dart';
 import 'package:merchantfrontapp/models/merchant_signup.dart';
 import 'package:http/http.dart';
 import 'package:merchantfrontapp/widgets/constants.dart';
+import 'package:mixpanel_analytics/mixpanel_analytics.dart';
 import 'dart:convert';
 import 'package:toast/toast.dart';
 import 'dart:async';
@@ -14,12 +16,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:android_intent/android_intent.dart';
 
+import 'fcm_notification.dart';
+
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
 }
 
 class _SignUpState extends State<SignUp> {
+  MixPanel mix = MixPanel();
+  FcmNotification fcm;
   static const platformMethodChannel = const MethodChannel('merchant/getGPS');
   String nativeMessage = '';
   bool _autoValidate = false;
@@ -27,7 +33,8 @@ class _SignUpState extends State<SignUp> {
   String shopName;
   String name;
   String phone;
-  String password;
+  final password = TextEditingController();
+  final verifyPassword = TextEditingController();
   String email;
   String address;
   String zipcode;
@@ -49,13 +56,23 @@ class _SignUpState extends State<SignUp> {
 
   @override
   void initState() {
+    mix.createMixPanel();
     super.initState();
+    fcm = new FcmNotification(context: context);
+    fcm.initialize();
     requestLocationPermission();
     //_gpsService();
     _getGPS();
     _getLocation().then((position) {
       userLocation = position;
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    password.dispose();
+    verifyPassword.dispose();
   }
 
   @override
@@ -121,9 +138,7 @@ class _SignUpState extends State<SignUp> {
                 ),
               ),
               TextFormField(
-                onSaved: (String value) {
-                  password = value;
-                },
+                controller: password,
                 validator: validatePassword,
                 obscureText: true,
                 style: TextStyle(
@@ -138,6 +153,32 @@ class _SignUpState extends State<SignUp> {
                   ),
                   hintText: 'Enter your password',
                   labelText: 'Password',
+                ),
+              ),
+              TextFormField(
+                controller: verifyPassword,
+                validator: (val) {
+                  if (val.isEmpty) {
+                    return 'Required';
+                  } else if (password.text != verifyPassword.text) {
+                    return 'Password does not match';
+                  } else {
+                    return null;
+                  }
+                },
+                obscureText: true,
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+                decoration: InputDecoration(
+                  icon: IconTheme(
+                    data: IconThemeData(
+                      color: Color(0xFFf1d300),
+                    ),
+                    child: Icon(Icons.security),
+                  ),
+                  hintText: 'Enter your password again',
+                  labelText: 'Verify Password',
                 ),
               ),
               TextFormField(
@@ -324,7 +365,7 @@ class _SignUpState extends State<SignUp> {
                         fullname: name.trim(),
                         mailid: email.trim(),
                         city: selectedCity,
-                        password: password.trim(),
+                        password: password.text.trim(),
                         address: address.trim(),
                         zipcode: zipcode.trim(),
                         mobilenumber: phone.trim(),
@@ -390,6 +431,7 @@ class _SignUpState extends State<SignUp> {
       String status = json.decode(body)['message'];
 
       if (status == 'user registered') {
+        onCreateAccount(m);
         Toast.show(
           "Success: Your account has been created. Please login.",
           context,
@@ -534,6 +576,37 @@ class _SignUpState extends State<SignUp> {
     }
     setState(() {
       nativeMessage = _message;
+    });
+  }
+
+  onSignUp(String status) async {
+    fcm.getToken().then((value) {
+      print(value);
+      var result = mix.mixpanelAnalytics.track(
+          event: 'onSignup',
+          properties: {'status': status, 'distinct_id': value});
+      result.then((value) {
+        print('this is on click');
+        print(value);
+      });
+    });
+  }
+
+  onCreateAccount(Merchant m) async {
+    fcm.getToken().then((value) {
+      var result = mix.mixpanelAnalytics
+          .engage(operation: MixpanelUpdateOperations.$set, value: {
+        '\$first_name': m.fullname,
+        '\$created': DateTime.now().toUtc().toIso8601String(),
+        '\$email': m.mailid,
+        '\$phone': m.mobilenumber,
+        'city': m.city,
+        'address': m.address,
+        'shopname': m.address,
+        'category': m.category,
+        'zipcode': m.zipcode,
+        'distinct_id': value
+      });
     });
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:merchantfrontapp/widgets/Mixpanel.dart';
 import 'package:merchantfrontapp/widgets/common_button.dart';
 import 'package:merchantfrontapp/widgets/constants.dart';
 import 'package:merchantfrontapp/widgets/upload_image.dart';
@@ -11,17 +12,30 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:merchantfrontapp/widgets/dashboard.dart';
 
+import 'fcm_notification.dart';
+
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
+  FcmNotification fcm;
   bool _autoValidate = false;
   SharedPreferences prefs;
   final _formKey = GlobalKey<FormState>();
   String phone;
   String password;
+  MixPanel mix = MixPanel();
+
+  @override
+  void initState() {
+    super.initState();
+    fcm = new FcmNotification(context: context);
+    fcm.initialize();
+    mix.createMixPanel();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -102,47 +116,82 @@ class _LoginState extends State<Login> {
   }
 
   loginMerchant(BuildContext context, String mobile, String password) async {
-    try {
-      Response response = await post(
-        kUrl + '/merchantlogin',
-        headers: <String, String>{'Content-Type': 'application/json'},
-        body: jsonEncode(<String, dynamic>{
-          'mobilenumber': mobile,
-          'password': password,
-        }),
-      ).timeout(const Duration(seconds: 10));
-      String body = response.body;
-      String status = json.decode(body)['message'];
-      print(status);
-      if (status == 'successful login') {
+    fcm.getToken().then((value) async {
+      var deviceToken = value;
+      try {
+        Response response = await post(
+          kUrl + '/merchantlogin',
+          headers: <String, String>{'Content-Type': 'application/json'},
+          body: jsonEncode(<String, dynamic>{
+            'mobilenumber': mobile,
+            'password': password,
+            'devicetoken': deviceToken,
+          }),
+        ).timeout(const Duration(seconds: 10));
+        String body = response.body;
+        String status = json.decode(body)['message'];
+        print(status);
+        onLogin(status);
+        if (status == 'successful login') {
+          Toast.show(
+            "Login Successful",
+            context,
+            duration: Toast.LENGTH_LONG,
+            gravity: Toast.BOTTOM,
+            textColor: Colors.black,
+            backgroundColor: Colors.green[200],
+          );
+          print(json.decode(body)['data']['merchantData']['shopname']);
+          save(
+            address: json.decode(body)['data']['merchantData']['address'],
+            city: json.decode(body)['data']['merchantData']['city'],
+            merchantid: json.decode(body)['data']['merchantid'],
+            mailid: json.decode(body)['data']['merchantData']['email'],
+            shopname: json.decode(body)['data']['merchantData']['shopname'],
+            zipcode: json.decode(body)['data']['merchantData']['zipcode'],
+            mobile: json.decode(body)['data']['merchantData']['mobilenumber'],
+            name: json.decode(body)['data']['merchantData']['fullname'],
+          );
+          Future.delayed(const Duration(milliseconds: 500), () {
+            setState(() {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => Dashboard()),
+                (Route<dynamic> route) => false,
+              );
+            });
+          });
+        } else if (status == 'images are not uploaded by this merchant') {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ImagePickerWidget(mobile, password)),
+            (Route<dynamic> route) => false,
+          );
+        } else {
+          Toast.show(
+            "Icorrect username/password",
+            context,
+            duration: 3,
+            gravity: Toast.BOTTOM,
+            textColor: Colors.black,
+            backgroundColor: Colors.red[200],
+          );
+        }
+
+        //call saving keys function
+      } on TimeoutException catch (_) {
         Toast.show(
-          "Login Successful",
+          "Check your internet connection",
           context,
-          duration: Toast.LENGTH_LONG,
+          duration: 3,
           gravity: Toast.BOTTOM,
           textColor: Colors.black,
-          backgroundColor: Colors.green[200],
+          backgroundColor: Colors.red[200],
         );
-        save(json.decode(body)['data']['merchantid']);
-        Future.delayed(const Duration(milliseconds: 500), () {
-          setState(() {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => Dashboard()),
-              (Route<dynamic> route) => false,
-            );
-          });
-        });
-      } else if (status == 'images are not uploaded by this merchant') {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ImagePickerWidget(mobile, password)),
-          (Route<dynamic> route) => false,
-        );
-      } else {
+      } on SocketException catch (_) {
         Toast.show(
-          "Icorrect username/password",
+          "Check your internet connection",
           context,
           duration: 3,
           gravity: Toast.BOTTOM,
@@ -150,39 +199,45 @@ class _LoginState extends State<Login> {
           backgroundColor: Colors.red[200],
         );
       }
-
-      //call saving keys function
-
-      print(body);
-    } on TimeoutException catch (_) {
-      Toast.show(
-        "Check your internet connection",
-        context,
-        duration: 3,
-        gravity: Toast.BOTTOM,
-        textColor: Colors.black,
-        backgroundColor: Colors.red[200],
-      );
-    } on SocketException catch (_) {
-      Toast.show(
-        "Check your internet connection",
-        context,
-        duration: 3,
-        gravity: Toast.BOTTOM,
-        textColor: Colors.black,
-        backgroundColor: Colors.red[200],
-      );
-    }
+    });
   }
 
 //save keys function
-  void save(String merchantid) async {
+  void save(
+      {String merchantid,
+      String shopname,
+      String name,
+      String address,
+      String city,
+      String mobile,
+      String mailid,
+      String zipcode}) async {
     print(merchantid);
     print('hi');
     prefs = await SharedPreferences.getInstance(); //get instance of app memory
     final merchantkey = 'merchantid';
     //save keys in memory
     prefs.setString(merchantkey, merchantid);
+    prefs.setString('shopname', shopname);
+    prefs.setString('name', name);
+    prefs.setString('address', address);
+    prefs.setString('city', city);
+    prefs.setString('mobile', mobile);
+    prefs.setString('mailid', mailid);
+    prefs.setString('zipcode', zipcode);
     print(prefs.getString(merchantkey));
+  }
+
+  onLogin(String status) async {
+    fcm.getToken().then((value) {
+      print(value);
+      var result = mix.mixpanelAnalytics.track(
+          event: 'onLogin',
+          properties: {'status': status, 'distinct_id': value});
+      result.then((value) {
+        print('this is on click');
+        print(value);
+      });
+    });
   }
 }

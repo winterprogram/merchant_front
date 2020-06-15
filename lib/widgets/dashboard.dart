@@ -9,6 +9,7 @@ import 'package:merchantfrontapp/widgets/payment_history_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Dashboard extends StatefulWidget {
+  Dashboard();
   @override
   _DashboardState createState() => _DashboardState();
 }
@@ -44,8 +45,14 @@ class _DashboardState extends State<Dashboard> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           leading: Icon(Icons.add_photo_alternate),
           actions: <Widget>[

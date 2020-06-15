@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:merchantfrontapp/models/create_coupon.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
+import 'package:merchantfrontapp/widgets/Mixpanel.dart';
 import 'package:merchantfrontapp/widgets/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
@@ -11,6 +12,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
+import 'fcm_notification.dart';
 import 'landing_page.dart';
 
 class CouponGenerate extends StatefulWidget {
@@ -31,12 +33,23 @@ class CouponGenerate extends StatefulWidget {
 }
 
 class _CouponGenerateState extends State<CouponGenerate> {
+  FcmNotification fcm;
   bool _autoValidate = false;
   final _formKey = GlobalKey<FormState>();
   String discount;
   String flatDiscount;
   String startDate;
   String endDate;
+  MixPanel mix = MixPanel();
+
+  @override
+  void initState() {
+    super.initState();
+    fcm = new FcmNotification(context: context);
+    fcm.initialize();
+    mix.createMixPanel();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,6 +154,8 @@ class _CouponGenerateState extends State<CouponGenerate> {
                     } else if (!(value.difference(this.widget.start).inDays <
                         1)) {
                       return null;
+                    } else {
+                      return 'End date cannot be before start date';
                     }
                   },
                   onShowPicker: (context, currentValue) {
@@ -236,6 +251,7 @@ class _CouponGenerateState extends State<CouponGenerate> {
       ).timeout(const Duration(seconds: 10));
       String body = response.body;
       String status = json.decode(body)['message'];
+      onCreateCoupon(status);
       print(body);
       if (status == 'auth token is empty') {
         Toast.show(
@@ -381,5 +397,18 @@ class _CouponGenerateState extends State<CouponGenerate> {
         backgroundColor: Colors.red[200],
       );
     }
+  }
+
+  onCreateCoupon(String status) async {
+    fcm.getToken().then((value) {
+      print(value);
+      var result = mix.mixpanelAnalytics.track(
+          event: 'onCreateCoupon',
+          properties: {'status': status, 'distinct_id': value});
+      result.then((value) {
+        print('this is on click');
+        print(value);
+      });
+    });
   }
 }

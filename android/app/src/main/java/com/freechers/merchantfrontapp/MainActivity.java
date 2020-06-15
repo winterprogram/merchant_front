@@ -1,4 +1,4 @@
-package com.example.merchantfrontapp;
+package com.freechers.merchantfrontapp;
 import android.location.LocationManager;
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;

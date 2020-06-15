@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "416403841336",
+    "firebase_url": "https://freechers-7ec0c.firebaseio.com",
+    "project_id": "freechers-7ec0c",
+    "storage_bucket": "freechers-7ec0c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416403841336:android:915678bd9d40db0ef721cd",
+        "android_client_info": {
+          "package_name": "com.freechers.merchantfrontapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416403841336-66sihq6c1ishs8398kbf55nuaj1ufkdd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG25OiPCQWCBJmn395fiQhQQPvCcs08A4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416403841336-66sihq6c1ishs8398kbf55nuaj1ufkdd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

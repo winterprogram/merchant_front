@@ -5,11 +5,13 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart';
+import 'package:merchantfrontapp/widgets/Mixpanel.dart';
 import 'package:merchantfrontapp/widgets/constants.dart';
 import 'package:merchantfrontapp/widgets/coupon_form.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
+import 'fcm_notification.dart';
 import 'landing_page.dart';
 
 class ManageCoupon extends StatefulWidget {
@@ -18,16 +20,26 @@ class ManageCoupon extends StatefulWidget {
 }
 
 class _ManageCouponState extends State<ManageCoupon> {
+  FcmNotification fcm;
   Future<String> check;
   String discount;
   String flatdiscount;
   String startdate;
   String enddate;
+  String shopname;
+  MixPanel mix = MixPanel();
 
   @override
   void initState() {
+    mix.createMixPanel();
     check = manageCoupon(context);
     super.initState();
+    fcm = new FcmNotification(context: context);
+    fcm.initialize();
+    getShopName().then((value) {
+      print(value);
+      shopname = value;
+    });
   }
 
   @override
@@ -83,6 +95,7 @@ class _ManageCouponState extends State<ManageCoupon> {
                     print(check);
                     if (projectSnap.data == 'Coupon') {
                       return Coupon(
+                              shopname: shopname,
                               editFunction: () {
                                 openEditForm(context);
                               },
@@ -118,7 +131,7 @@ class _ManageCouponState extends State<ManageCoupon> {
     );
   }
 
-  Future<String> manageCoupon(context) async {
+  manageCoupon(context) async {
     SharedPreferences prefs =
         await SharedPreferences.getInstance(); //get merchant id
     final merchantkey = 'merchantid';
@@ -134,6 +147,7 @@ class _ManageCouponState extends State<ManageCoupon> {
       String body = response.body;
       print(body);
       String status = json.decode(body)['message'];
+      onGetCoupon(status);
       if (status == ' coupon fetched') {
         List coupondata = json.decode(body)['data'];
         discount = coupondata[0]['discount'];
@@ -204,7 +218,7 @@ class _ManageCouponState extends State<ManageCoupon> {
     });
   }
 
-  Future<String> deleteCoupon(context) async {
+  deleteCoupon(context) async {
     print('hi');
     SharedPreferences prefs =
         await SharedPreferences.getInstance(); //get merchant id
@@ -224,6 +238,7 @@ class _ManageCouponState extends State<ManageCoupon> {
       String body = response.body;
       print(body);
       String status = json.decode(body)['message'];
+      onDeleteCoupon(status);
       if (status == 'auth token is empty') {
         Toast.show(
           "You have been logged out. Please login again", //coupon created
@@ -237,8 +252,8 @@ class _ManageCouponState extends State<ManageCoupon> {
         prefs.remove('merchantid');
         Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (BuildContext ctx) => LandingPage()),
-            ModalRoute.withName('/'));
+            MaterialPageRoute(builder: (context) => LandingPage()),
+            (Route<dynamic> route) => false);
       } else if (status == ' coupon delete') {
         Toast.show(
           "Success: Your Coupon has been deleted", //coupon created
@@ -281,5 +296,37 @@ class _ManageCouponState extends State<ManageCoupon> {
         backgroundColor: Colors.red[200],
       );
     }
+  }
+
+  getShopName() async {
+    SharedPreferences prefs =
+        await SharedPreferences.getInstance(); //get instance of app memory
+    return prefs.getString('shopname');
+  }
+
+  onDeleteCoupon(String status) async {
+    fcm.getToken().then((value) {
+      print(value);
+      var result = mix.mixpanelAnalytics.track(
+          event: 'onDeleteCoupon',
+          properties: {'status': status, 'distinct_id': value});
+      result.then((value) {
+        print('this is on click');
+        print(value);
+      });
+    });
+  }
+
+  onGetCoupon(String status) async {
+    fcm.getToken().then((value) {
+      print(value);
+      var result = mix.mixpanelAnalytics.track(
+          event: 'onGetCoupon',
+          properties: {'status': status, 'distinct_id': value});
+      result.then((value) {
+        print('this is on click');
+        print(value);
+      });
+    });
   }
 }

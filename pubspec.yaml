@@ -27,7 +27,16 @@ dependencies:
   uuid: ^2.0.4
   flutter_spinkit: ^4.1.2+1
   photo_view: ^0.9.2
-
+  shimmer: ^1.1.1
+  firebase_core: ^0.4.5
+  firebase_analytics: ^5.0.14
+  firebase_messaging: ^6.0.16
+  flushbar: ^1.10.4
+  mixpanel_analytics: ^1.2.1
+  device_info: ^0.4.2+4
+  app_settings: ^4.0.1
+  razorpay_flutter: ^1.2.1
+  dotted_border: ^1.0.5
 
 dev_dependencies:
   flutter_test:
